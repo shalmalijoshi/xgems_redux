@@ -31,7 +31,7 @@ class classifier(object):
         self.target=tf.placeholder(tf.float32,[None,self.n_labels],name='y_')
 
         self.modelop = self.model(self.x,self.target)
-        self.modeloptimizer = self.model.train(0.5)
+        self.modeloptimizer = self.model.train(0.1)
         self.corrpred = tf.equal(tf.argmax(self.modelop,1),tf.argmax(self.target,1))
         #print('modelop',self.modelop.shape,self.target.shape)
         #self.corrpred=tf.equal(tf.to_int32(tf.greater(self.modelop,0.5)),tf.to_int32(self.target))
@@ -53,7 +53,7 @@ class classifier(object):
         gpu_options = tf.GPUOptions(allow_growth=True)
         self.sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
 
-    def train(self,batch_size=32,epochs=40):
+    def train(self,batch_size=64,epochs=50):
         self.sess.run(tf.global_variables_initializer())
         self.sess.run(tf.local_variables_initializer())
         start_time = time.time()
@@ -92,7 +92,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser('')
     parser.add_argument('--data', type=str, default='defaultCredit')
     parser.add_argument('--estimator', type=str, default='softmax')
-    parser.add_argument('--params', type=str,default={'C':'1'})
+    parser.add_argument('--reg', type=str,default=0.1)
     parser.add_argument('--modelpath', type=str,default='/scratch/gobi1/shalmali/defaultCredit/classifier')
     parser.add_argument('--resultpath', type=str,default='/scratch/gobi1/shalmali/defaultCredit/classifier')
     parser.add_argument('--gpus', type=str, default='0')
@@ -104,9 +104,11 @@ if __name__ == '__main__':
     data = importlib.import_module(args.data)
     model = importlib.import_module(args.data +'.'+args.estimator)
     
-    estobj = model.estimator()
+    reg_penalty = float(args.reg)
+    print(reg_penalty)
+    estobj = model.estimator(reg_penalty=reg_penalty)
     estobj.name = args.data + '/' + args.estimator
-    estobj.set_params(args.params)
+    #estobj.set_params(args.params)
     
     dataobj = data.DataSampler()
 
@@ -114,16 +116,15 @@ if __name__ == '__main__':
     resultpath=args.resultpath
 
     # Using only defaults for now
-    #modelpath='../' + args.data + '/classifier/' + args.estimator
-    #if not os.path.exists(modelpath):
-    #    os.makedirs(modelpath)
-    modelpath += '/' + args.estimator + '.classifier'
+    modelpath=modelpath+'/' + args.estimator + '_' + str(reg_penalty)
+    if not os.path.exists(modelpath):
+        os.makedirs(modelpath)
+    resultpath=modelpath
 
-    #resultpath='../' + args.data + '/classifier/' + args.estimator
-    #if not os.path.exists(resultpath):
-    #    os.makedirs(resultpath)
-    resultpath += '/' + args.estimator + '.res'
+    modelpath += '/' + args.estimator + '.classifier'
     
+    resultpath += '/' + args.estimator + '.res'
+ 
     classifierObj = classifier(estimator=estobj, data=dataobj, \
                     modelpath=modelpath, resultpath=resultpath)
     classifierObj.train()

@@ -4,10 +4,10 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import KFold
 
-data_path='~/data/credit_processed.csv'
+data_path='~/data/credit_processed_classifier.csv'
 data_path_hivae='~/data/credit_processed_hivae.csv'
 dest_path='/h/shalmali/data/defaultCredit/'
-data=np.asarray(pd.read_csv(data_path))
+data=np.asarray(pd.read_csv(data_path,header=None))
 X=data[:,1:]
 y=data[:,0]
 

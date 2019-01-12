@@ -9,7 +9,9 @@ class DataSampler(object):
     def __init__(self,one_hot=True):
         self.n_labels = 2
         self.xtrain=np.asarray(pd.read_csv('/h/shalmali/data/defaultCredit/xtrain.csv',header=None))
+        self.xtrain_hivae=np.asarray(pd.read_csv('/h/shalmali/data/defaultCredit/xtrain_hivae.csv',header=None))
         self.xtest=np.asarray(pd.read_csv('/h/shalmali/data/defaultCredit/xtest.csv',header=None))
+        self.xtest_hivae=np.asarray(pd.read_csv('/h/shalmali/data/defaultCredit/xtest_hivae.csv',header=None))
         self.ytrain=np.asarray(pd.read_csv('/h/shalmali/data/defaultCredit/ytrain.csv',header=None))
         print(np.where(self.ytrain==1)[0].shape,self.ytrain.shape)
         self.ytest=np.asarray(pd.read_csv('/h/shalmali/data/defaultCredit/ytest.csv',header=None))
